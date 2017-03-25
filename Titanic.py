@@ -1,5 +1,20 @@
 import pandas as pd
 import numpy as np
+
+from sklearn.linear_model import LogisticRegression
+from sklearn.svm import SVC, LinearSVC
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.naive_bayes import GaussianNB
+from sklearn import tree
+from sklearn.linear_model import Perceptron
+from sklearn.ensemble import AdaBoostClassifier
+from sklearn.tree import DecisionTreeClassifier
+
+from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import accuracy_score
+
+
 #Reading the data
 tr=pd.read_csv('C:/Users/Madhu/Desktop/Kaggle/Titanic/Data/train.csv',header=0,sep=',')
 ts=pd.read_csv('C:/Users/Madhu/Desktop/Kaggle/Titanic/Data/test.csv',header=0)
@@ -21,6 +36,13 @@ tr['Family']=tr['SibSp']+tr['Parch']
 tr=tr.drop(['SibSp','Parch'],axis=1)
 ts['Family']=ts['SibSp']+ts['Parch']
 ts=ts.drop(['SibSp','Parch'],axis=1)
+
+tr['Family'].loc[tr['Family'] > 0] = 1
+tr['Family'].loc[tr['Family'] == 0] = 0
+
+ts['Family'].loc[ts['Family'] > 0] = 1
+ts['Family'].loc[ts['Family'] == 0] = 0
+
 
 #Fill the age null values
 tr_age_mean=tr['Age'].mean()
@@ -83,4 +105,56 @@ ts=ts.join(Pclass_dummies_ts)
 tr.drop('Pclass',axis=1,inplace=True)
 ts.drop('Pclass',axis=1,inplace=True)
 
-print(tr)
+
+
+#Training data
+X_Train=tr.drop('Survived',axis=1)
+Y_Train=tr['Survived']
+
+X_Test=ts.drop('PassengerId',axis=1).copy()
+Y_test = pd.read_csv('C:/Users/Madhu/Desktop/Kaggle/Titanic/Output/gender_submission.csv')
+Y_test.drop('PassengerId', axis=1, inplace=1)
+print(X_Train)
+
+def predicAndScore(clf) :
+    clf.fit(X_Train, Y_Train)
+    Y_pred = clf.predict(X_Test)
+    score = clf.score(X_Train, Y_Train)
+    #predict_score = accuracy_score(Y_test, Y_pred)
+    #print(predict_score)
+    return score
+
+
+
+#Classificaton models
+
+# Gaussian Native Bayes
+gnb = GaussianNB()
+score = predicAndScore(gnb)
+print('GaussianNB score:', score)
+
+# SVM
+svc = SVC()
+score = predicAndScore(svc)
+print('Support Vector Machine score:', score)
+
+# Random Forests
+rf = RandomForestClassifier(n_estimators=100)
+score = predicAndScore(rf)
+print('Random Forests:', score)
+
+# Logistic Regression
+logreg = LogisticRegression()
+score = predicAndScore(logreg)
+print('Logistic Regression:', score)
+
+# knn
+knn = KNeighborsClassifier(n_neighbors=3)
+score = predicAndScore(knn)
+print('knn:', score)
+
+# decision tree
+dt = tree.DecisionTreeClassifier()
+score = predicAndScore(dt)
+print('decision tree:', score)
+# score: 0.957351290685
