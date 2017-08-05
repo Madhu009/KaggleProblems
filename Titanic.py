@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC, LinearSVC
 from sklearn.ensemble import RandomForestClassifier
@@ -72,10 +71,10 @@ def getPerson(passenger) :
     return 'child' if age < 16 else sex
 tr['Person'] = tr[['Age', 'Sex']].apply(getPerson, axis=1)
 ts['Person'] = ts[['Age', 'Sex']].apply(getPerson, axis=1)
-tr.drop('Sex',axis=1,inplace=True)
 ts.drop('Sex',axis=1,inplace=True)
 
 
+tr.drop('Sex',axis=1,inplace=True)
 person_dummies_train  = pd.get_dummies(tr['Person'])
 person_dummies_train.columns = ['Child','Female','Male']
 person_dummies_train.drop(['Male'], axis=1, inplace=True)
